@@ -1,12 +1,12 @@
 ### Intro
-We will deploy MLflow in Mail.ru Cloud Solutions using S3 as artifact store, DBaaS Postgres as backend entity storage and Tracking Server on separate host.
-This is the most production ready scenario of deployment
+We will deploy MLflow in Mail.ru Cloud Solutions using S3 as artifact store, DBaaS Postgres as backend entity storage and Tracking Server on separate host.   
+This is the most production ready scenario of deployment   
 https://mlflow.org/docs/latest/tracking.html#scenario-4-mlflow-with-remote-tracking-server-backend-and-artifact-stores
 
 
 ### 1. Create VM for mlflow
-https://mcs.mail.ru/help/ru_RU/create-vm/vm-quick-create 
-Tested with OS - Ubuntu 18.04
+https://mcs.mail.ru/help/ru_RU/create-vm/vm-quick-create   
+Tested with OS - Ubuntu 18.04   
 Record VM white ip and internal ip
 
 ### 2. Install Conda on VM created on step 1
@@ -37,7 +37,7 @@ pip install psycopg2-binary
 ```
 
 ### 4. Create Postgres as a backend store
-https://mcs.mail.ru/help/ru_RU/dbaas-start/db-postgres 
+https://mcs.mail.ru/help/ru_RU/dbaas-start/db-postgres   
 Save credentials, DB name
 
 ### 5. Create S3 bucket and directory
@@ -45,16 +45,16 @@ The next step is creating a directory for our Tracking Server to log the Machine
 Remember that the Postgres database is only used for storing metadata regarding those models.
 We will use S3 as artifact storage.
 
-Create bucket and directory inside it
+Create bucket and directory inside it  
 https://mcs.mail.ru/help/ru_RU/s3-start/create-bucket
 
-Create account, access key id and secret key
+Create account, access key id and secret key   
 https://mcs.mail.ru/help/ru_RU/s3-start/s3-account 
 
 
 ### 6. Launch MLflow
-Login to VM that was created on Step 1
-You can access VM with command
+Login to VM that was created on Step 1   
+You can access VM with command  
 ```console
 ssh -i REPLACE_WITH_YOUR_KEY ubuntu@REPLACE_WITH_YOUR_VM_IP
 ```
@@ -83,8 +83,8 @@ aws_access_key_id = REPLACE_WITH_YOUR_KEY
 aws_secret_access_key = REPLACE_WITH_YOUR_SECRET_KEY
 ```
 
-This is test run, if you leave terminal MLflow will be unaccessible
-Permanent serving of MLflow on the next step
+This is test run, if you leave terminal MLflow will be unaccessible   
+Permanent serving of MLflow on the next step   
 ```console
 conda activate mlflow_env
 mlflow server --backend-store-uri postgresql://pg_user:pg_password@REPLACE_WITH_INTERNAL_IP_MLFLOW_VM/db_name --default-artifact-root s3://REPLACE_WITH_YOUR_BUCKET/REPLACE_WITH_YOUR_DIRECTORY/ -h 0.0.0.0 -p 8000
@@ -146,11 +146,10 @@ tmux
 
 jupyter-notebook --ip '*'
 ```
-Copy string that looks like that
-
+Copy string that looks like that   
 http://name_of_host:8888/?token=5d3d6b7a0551asdffds4190e8sdffsd329bee345esdfmkdfs2c042c0b7a5
 
-deattach from tmux session
+deattach from tmux session   
 ctrl + b d
 
 ### 9. Config JupyterHub host
@@ -178,7 +177,7 @@ aws_secret_access_key = REPLACE_WITH_YOUR_SECRET_KEY
 ``````
 
 ### 10. Install MLflow on JupyterHub host
-We will create separate environment, install MLflow and create kernel for JupyterHub with MLflow
+We will create separate environment, install MLflow and create kernel for JupyterHub with MLflow  
 ```console
 conda create -n mlflow_env
 
@@ -198,18 +197,21 @@ python -m ipykernel install --user --name ex --display-name "Python (mlflow)"
 ``````
 
 ### 11. Launch JupyterHub and test MLflow
-Your JupyterHub available on url like that http://name_of_host:8888/?token=5d3d6b7a0551asdffds41sdvlgfd8sdffsd329bee345esdfmkdfs2c042c0b7dffb
+Your JupyterHub available on url like that    
+http://name_of_host:8888/?token=5d3d6b7a0551asdffds41sdvlgfd8sdffsd329bee345esdfmkdfs2c042c0b7dffb   
 
-You should get this url on step 8
+You should get this url on step 8   
 
-Launch a terminal in Jupyter and clone the mlflow repo
+Launch a terminal in Jupyter and clone the mlflow repo   
+```console
 git clone https://github.com/stockblog/mlflow_webinar/ mlflow_webinar
+```
 Open mlflow_demo.ipynb and launch cells
 
 
 ### 12. Serve model from artifact store
-Find URI of model in MLFlow UI
-Connect to MLflow host created on step 1
+Find URI of model in MLFlow UI   
+Connect to MLflow host created on step 1   
 ```console
 #EXAMPLE, REPLACE S3 path with your own path to model
 mlflow models serve -m s3://mlflow_webinar/artifacts/5/a7ee769713974c118d0eff20226eb474/artifacts/model -h 0.0.0.0 -p 8001
@@ -238,8 +240,8 @@ curl -X POST -H "Content-Type:application/json; format=pandas-split" --data '{"c
 ```
 
 ### 15. Permanent serving of model
-Connect to MLflow host created on step 1
-you can find MLFLOW_ENV_OF_MODEL when you launch model on step 11 or 12
+Connect to MLflow host created on step 1  
+you can find MLFLOW_ENV_OF_MODEL when you launch model on step 11 or 12   
 
 sudo nano /etc/systemd/system/mlflow-model.service
 ```console
@@ -270,15 +272,13 @@ sudo systemctl status mlflow-model
 ```
 
 ### 16. Build docker image with model
-Prerequisites: install Docker
+Prerequisites: install Docker   
+https://docs.docker.com/engine/install/ubuntu/   
+https://docs.docker.com/engine/install/linux-postinstall/   
 
-https://docs.docker.com/engine/install/ubuntu/
-
-https://docs.docker.com/engine/install/linux-postinstall/
-
-You may need to edit conda.yaml and add dependencies
-You can find this file in artifact storage in folder artifacts/model
-s3://BUCKET/FOLDER/EXPERIMENT_NUMBER/INTERNAL_MLFLOW_ID/artifacts/model
+You may need to edit conda.yaml and add dependencies   
+You can find this file in artifact storage in folder artifacts/model   
+s3://BUCKET/FOLDER/EXPERIMENT_NUMBER/INTERNAL_MLFLOW_ID/artifacts/model   
 
 Example conda.yaml where we added scipy and boto3 libs to standart dependencies
 ```console
