@@ -204,7 +204,7 @@ You should get this url on step 8
 
 Launch a terminal in Jupyter and clone the mlflow repo   
 ```console
-git clone https://github.com/stockblog/mlflow_webinar/ mlflow_webinar
+git clone https://github.com/stockblog/webinar_mlflow/ webinar_mlflow
 ```
 Open mlflow_demo.ipynb and launch cells
 
